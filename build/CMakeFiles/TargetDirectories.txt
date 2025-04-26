@@ -1,0 +1,4 @@
+/mnt/d/Programming/PkcsProject/pkcs11_solid/build/CMakeFiles/Pkcs11App.dir
+/mnt/d/Programming/PkcsProject/pkcs11_solid/build/CMakeFiles/test.dir
+/mnt/d/Programming/PkcsProject/pkcs11_solid/build/CMakeFiles/edit_cache.dir
+/mnt/d/Programming/PkcsProject/pkcs11_solid/build/CMakeFiles/rebuild_cache.dir
