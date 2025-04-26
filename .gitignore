@@ -1,0 +1,48 @@
+# Ignore build directories
+/build/
+/bin/
+/obj/
+/out/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled object files
+*.o
+*.a
+*.so
+*.dll
+*.exe
+
+# Ignore compiled executable files
+*.out
+*.app
+
+# Ignore IDE project files
+/.vscode/
+/.idea/
+/.vscode/settings.json
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore CMake files
+CMakeFiles/
+CMakeCache.txt
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# Ignore log files
+*.log
+
+# Ignore dependency files
+*.d
+
+# Ignore coverage reports
+*.gcda
+*.gcno
+*.gcov
