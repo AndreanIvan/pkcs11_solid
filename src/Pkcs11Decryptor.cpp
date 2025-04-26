@@ -27,7 +27,8 @@ CK_RV Pkcs11Decryptor::decrypt(const std::vector<uint8_t>& cipher, std::vector<u
     }
 
     // Decrypt the data using PKCS#11
-    CK_MECHANISM mechanism = {CKM_AES_CBC, nullptr, 0};
+    CK_BYTE iv[16] = {0};
+    CK_MECHANISM mechanism = { CKM_AES_CBC_PAD, iv, sizeof(iv) };
     CK_RV rv = C_DecryptInit(session, &mechanism, aesKeyArg);
     if (rv != CKR_OK) {
         std::cerr << "C_DecryptInit failed: " << std::hex << rv << std::endl;
