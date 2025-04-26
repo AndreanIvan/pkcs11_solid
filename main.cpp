@@ -15,7 +15,7 @@ int main() {
     const CK_ULONG AES_KEY_SIZE = 16; // 128-bit
 
     // Data to encrypt and decrypt
-    const char* plaintext = "Hello, PKCS#11!";
+    const char* plaintext = "Hello, I'm Andrean!";
     CK_BYTE ciphertext[256] = {0};
     CK_BYTE decrypted[256] = {0};
     
@@ -25,11 +25,7 @@ int main() {
 
     CK_BYTE paddedPlaintext[16] = {0};
     memcpy(paddedPlaintext, plaintext, ptLen);
-
-    // Wrap paddedPlaintext into a vector for encryption
-    std::vector<unsigned char> plaintextVec(paddedPlaintext, paddedPlaintext + sizeof(paddedPlaintext));
-    std::vector<unsigned char> ciphertextVec(ciphertext, ciphertext + sizeof(ciphertext));
-    std::vector<unsigned char> decryptedVec(decrypted, decrypted + sizeof(decrypted));
+    std::cout << "Plain text     : " << plaintext << std::endl;
 
     /* Encryption Section */
     // Initialize Library (Load PKCS#11 library, create new session)
@@ -42,14 +38,23 @@ int main() {
     encryptor.generateKey(AES_KEY_SIZE);
     
     // Encrypts and stores encrypted data
-    encryptor.encrypt(plaintextVec, ciphertextVec);
-    
+    encryptor.encrypt(paddedPlaintext, ptLen, ciphertext, &ctLen);
+    std::cout << "Encrypted text : " << ciphertext << std::endl;
+
     // Gets the generated key
     aesKey = encryptor.getGeneratedKey();
-    
-    /* Decryption Section */
-    // Initialize Library (Load PKCS#11 library, create new session)
-    Pkcs11Decryptor decryptor(PKCS11_LIB_PATH);
+
+    // Decrypts data
+    encryptor.decrypt(ciphertext, ctLen, decrypted, &decLen);
+
+    // Prints decrypted data
+    std::cout << "Decrypted text : " << decrypted << std::endl;
+
+    // TODO: Create separate function for Decryptor
+
+    // /* Decryption Section */
+    // // Initialize Library (Load PKCS#11 library, create new session)
+    // Pkcs11Decryptor decryptor(PKCS11_LIB_PATH);
 
     // // Logs in
     // decryptor.login(USER_PIN);
