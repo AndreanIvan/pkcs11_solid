@@ -48,6 +48,10 @@ sudo apt-get install libsofthsm2-2 libsofthsm2-dev
    ```
    Please make sure that the user have `sudo` access.
 
+## Capture of the final result
+
+![Result Capture](./result_capture.png)
+
 ## Directory Structure
 
 ```
