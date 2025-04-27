@@ -15,6 +15,9 @@ Thumbs.db
 *.dll
 *.exe
 
+# Do not ignore compiled object files in lib/ directory
+!lib/*.o
+
 # Ignore compiled executable files
 *.out
 *.app
