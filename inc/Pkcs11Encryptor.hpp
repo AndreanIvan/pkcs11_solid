@@ -13,7 +13,7 @@ public:
     Pkcs11Encryptor(const char* libraryPath);
     ~Pkcs11Encryptor() override;
 
-    CK_RV encrypt(const CK_BYTE_PTR plain, CK_ULONG plainLen, CK_BYTE_PTR cipher, CK_ULONG_PTR cipherLen);
-    CK_RV decrypt(const CK_BYTE_PTR cipher, CK_ULONG cipherLen, CK_BYTE_PTR plain, CK_ULONG_PTR plainLen);
+    CK_RV encrypt(std::vector<uint8_t>& plain, std::vector<uint8_t>& cipher);
+    CK_RV decrypt(std::vector<uint8_t>& cipher, std::vector<uint8_t>& plain);
     
 };

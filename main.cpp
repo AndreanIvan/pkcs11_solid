@@ -15,17 +15,15 @@ int main() {
     const CK_ULONG AES_KEY_SIZE = 16; // 128-bit
 
     // Data to encrypt and decrypt
-    const char* plaintext = "Hello, my name is Andrean Ivan. Nice to meet you!";
-    CK_BYTE ciphertext[256] = {0};
-    CK_BYTE decrypted[256] = {0};
-    
-    CK_ULONG ptLen = strlen(plaintext);
-    CK_ULONG ctLen = sizeof(ciphertext);
-    CK_ULONG decLen = sizeof(decrypted);
+    std::string plaintext = "Hello, my name is Andrean Ivan. Nice to meet you!";
 
-    CK_BYTE paddedPlaintext[16] = {0};
-    memcpy(paddedPlaintext, plaintext, ptLen);
-    std::cout << "Plain text     : " << plaintext << std::endl;
+    // Convert string to vector of uint8_t for encryption and decryption
+    std::vector<uint8_t> plaintextVec(plaintext.begin(), plaintext.end());
+    std::vector<uint8_t> ciphertextVec(256, 0);
+    std::vector<uint8_t> decryptedVec(256, 0);
+
+    // Print plaintext vector
+    std::cout << "Plain text     : " << plaintextVec.data() << std::endl;
 
     /* Encryption Section */
     // Initialize Library (Load PKCS#11 library, create new session)
@@ -38,17 +36,19 @@ int main() {
     encryptor.generateKey(AES_KEY_SIZE);
     
     // Encrypts and stores encrypted data
-    encryptor.encrypt(paddedPlaintext, ptLen, ciphertext, &ctLen);
-    std::cout << "Encrypted text : " << ciphertext << std::endl;
+    encryptor.encrypt(plaintextVec, ciphertextVec);
+    std::cout << "Encrypted text : " << ciphertextVec.data() << std::endl;
+    // std::cout << "Encrypted text len : " << ciphertextVec.size() << std::endl;
 
     // Gets the generated key
     aesKey = encryptor.getGeneratedKey();
 
     // Decrypts data
-    encryptor.decrypt(ciphertext, ctLen, decrypted, &decLen);
+    encryptor.decrypt(ciphertextVec, decryptedVec);
 
     // Prints decrypted data
-    std::cout << "Decrypted text : " << decrypted << std::endl;
+    std::cout << "Decrypted text : " << decryptedVec.data() << std::endl;
+    // std::cout << "Decrypted text len : " << decryptedVec.size() << std::endl;
 
     // TODO: Create separate function for Decryptor
 
