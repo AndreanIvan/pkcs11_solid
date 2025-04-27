@@ -72,5 +72,5 @@ sudo apt-get install libsofthsm2-2 libsofthsm2-dev
 ## Improvement
 
 Following things might be improvement for this project:
-- Unit test
+- More complex unit test
 - Make it more modular

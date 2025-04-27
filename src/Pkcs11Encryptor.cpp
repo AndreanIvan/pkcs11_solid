@@ -7,8 +7,7 @@ Pkcs11Encryptor::Pkcs11Encryptor(const char* libraryPath) : Pkcs11Connector(libr
 
 Pkcs11Encryptor::~Pkcs11Encryptor() = default;
 
-CK_RV Pkcs11Encryptor::encrypt(const CK_BYTE_PTR plain, CK_ULONG plainLen, CK_BYTE_PTR cipher, CK_ULONG_PTR cipherLen) {
-
+CK_RV Pkcs11Encryptor::encrypt(std::vector<uint8_t>& plain, std::vector<uint8_t>& cipher) {
     // Check if the session is open
     if (session == CK_INVALID_HANDLE) {
         std::cerr << "Session is not open." << std::endl;
@@ -22,7 +21,7 @@ CK_RV Pkcs11Encryptor::encrypt(const CK_BYTE_PTR plain, CK_ULONG plainLen, CK_BY
     }
 
     // Check if the plain text is empty
-    if (plainLen == 0) {
+    if (plain.empty()) {
         std::cerr << "Plain text is empty." << std::endl;
         return CKR_DATA_INVALID;
     }
@@ -36,16 +35,20 @@ CK_RV Pkcs11Encryptor::encrypt(const CK_BYTE_PTR plain, CK_ULONG plainLen, CK_BY
         return rv;
     }
 
-    rv = C_Encrypt(session, plain, plainLen, cipher, cipherLen);
+    CK_ULONG cipherLen = plain.size() + 16; // Padding
+    cipher.resize(cipherLen);
+    rv = C_Encrypt(session, (uint8_t *)plain.data(), plain.size(), cipher.data(), &cipherLen);
     if (rv != CKR_OK) {
         std::cerr << "C_Encrypt failed: " << std::hex << rv << std::endl;
         return rv;
     }
 
+    // Resize to actual length
+    cipher.resize(cipherLen);
     return CKR_OK;
 }
 
-CK_RV Pkcs11Encryptor::decrypt(const CK_BYTE_PTR cipher, CK_ULONG cipherLen, CK_BYTE_PTR plain, CK_ULONG_PTR plainLen) {
+CK_RV Pkcs11Encryptor::decrypt(std::vector<uint8_t>& cipher, std::vector<uint8_t>& plain) {
     // Check if the session is open
     if (session == CK_INVALID_HANDLE) {
         std::cerr << "Session is not open." << std::endl;
@@ -59,7 +62,7 @@ CK_RV Pkcs11Encryptor::decrypt(const CK_BYTE_PTR cipher, CK_ULONG cipherLen, CK_
     }
 
     // Check if the cipher text is empty
-    if (cipherLen == 0) {
+    if (cipher.empty()) {
         std::cerr << "Cipher text is empty." << std::endl;
         return CKR_DATA_INVALID;
     }
@@ -73,12 +76,15 @@ CK_RV Pkcs11Encryptor::decrypt(const CK_BYTE_PTR cipher, CK_ULONG cipherLen, CK_
         return rv;
     }
 
-    rv = C_Decrypt(session, cipher, cipherLen, plain, plainLen);
-
+    CK_ULONG plainLen = cipher.size() + 16; // Padding
+    plain.resize(plainLen);
+    rv = C_Decrypt(session, (uint8_t *)cipher.data(), cipher.size(), plain.data(), &plainLen);
     if (rv != CKR_OK) {
         std::cerr << "C_Decrypt failed: " << std::hex << rv << std::endl;
         return rv;
     }
 
+    // Resize to actual length
+    plain.resize(plainLen);
     return CKR_OK;
 }
