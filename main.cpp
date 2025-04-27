@@ -15,7 +15,7 @@ int main() {
     const CK_ULONG AES_KEY_SIZE = 16; // 128-bit
 
     // Data to encrypt and decrypt
-    const char* plaintext = "Hello, I'm Andrean!";
+    const char* plaintext = "Hello, my name is Andrean Ivan. Nice to meet you!";
     CK_BYTE ciphertext[256] = {0};
     CK_BYTE decrypted[256] = {0};
     
