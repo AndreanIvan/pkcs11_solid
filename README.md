@@ -8,12 +8,11 @@ This project demonstrates PKCS#11 encryption and decryption using SoftHSM2 and C
 - **CMake** (for build system)
 - **SoftHSM2** (for PKCS#11 implementation)
 
-### Install SoftHSM2
+## Install Dependencies
 
 On **Linux**:
-
-```bash
-sudo apt-get install libsofthsm2-2 libsofthsm2-dev
+```
+sudo apt-get install g++ cmake libsofthsm2-dev
 ```
 
 ## Setup
@@ -44,7 +43,14 @@ sudo apt-get install libsofthsm2-2 libsofthsm2-dev
 4. **Run the project:**
 
    ```bash
-   ./pkcs11_solid
+   ./bin/pkcs11_solid
+   ```
+   Please make sure that the user have `sudo` access.
+
+5. **Run the unit test:**
+
+   ```bash
+   ./bin/pkcs11_solid_unit_test
    ```
    Please make sure that the user have `sudo` access.
 
@@ -56,21 +62,21 @@ sudo apt-get install libsofthsm2-2 libsofthsm2-dev
 
 ```
 .
-├── CMakeLists.txt
-├── inc/           # Header files
-├── lib/           # External libraries
-├── src/           # Source files
-├── main.cpp       # Application entry point
-└── test/          # Unit tests
+├── inc/             # Header files
+├── lib/             # External libraries
+├── src/             # Source files
+├── test/            # Unit tests
+├── CMakeLists.txt   # CMake configuration file
+├── README.md        # README file
+└── main.cpp         # Application entry point
 ```
 
 ## Troubleshooting
 
-- **C_Initialize failed**: Ensure SoftHSM2 is installed and the `SOFTHSM2_CONF` is set correctly.
-- **Missing `pkcs11.h`**: Make sure the PKCS#11 header is available in the include path.
+- **C_Initialize failed**: Ensure SoftHSM2 is installed and the `SOFTHSM2_CONF` is set correctly. I have add the object at `lib\softhsm2\libsofthsm2.so` if you still can't find one.
+- **Failed to open session with PKCS#11 library**: Ensure that the binary is executed with superuser privilege.
 
 ## Improvement
 
 Following things might be improvement for this project:
-- More complex unit test
 - Make it more modular
