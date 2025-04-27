@@ -20,8 +20,8 @@ link_directories(${PROJECT_SOURCE_DIR}/lib/pkcs11)
 # Find the required libraries
 find_library(SOFTHSM2_LIBRARY NAMES softhsm2 PATHS ${PROJECT_SOURCE_DIR}/lib/pkcs11 NO_DEFAULT_PATH)
 
-# Add the source files
-set(SOURCE_FILES
+# Add the source files as libraries
+add_library(pkcs11_solid_lib STATIC
     src/Pkcs11Connector.cpp
     src/Pkcs11Decryptor.cpp
     src/Pkcs11Encryptor.cpp
@@ -29,14 +29,15 @@ set(SOURCE_FILES
 )
 
 # Create the executable
-add_executable(Pkcs11App main.cpp ${SOURCE_FILES})
+add_executable(pkcs11_solid main.cpp)
 # Link to the PKCS#11 library
-target_link_libraries(Pkcs11App PRIVATE ${SOFTHSM2_LIBRARY})
+target_link_libraries(pkcs11_solid PRIVATE pkcs11_solid_lib ${SOFTHSM2_LIBRARY})
 
 # Unit test executable
-add_executable(Pkcs11App_unit_test tests/test_main.cpp ${SOURCE_FILES})
+add_executable(pkcs11_solid_unit_test test/test_main.cpp)
 # Link prebuilt GoogleTest
-target_link_libraries(Pkcs11App_unit_test
+target_link_libraries(pkcs11_solid_unit_test
+    pkcs11_solid_lib
     ${PROJECT_SOURCE_DIR}/lib/gtest/libgtest.a
     ${PROJECT_SOURCE_DIR}/lib/gtest/libgtest_main.a
     ${SOFTHSM2_LIBRARY}
