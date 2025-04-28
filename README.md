@@ -76,6 +76,11 @@ sudo apt-get install g++ cmake libsofthsm2-dev
 - **C_Initialize failed**: Ensure SoftHSM2 is installed and the `SOFTHSM2_CONF` is set correctly. I have add the object at `lib\softhsm2\libsofthsm2.so` if you still can't find one.
 - **Failed to open session with PKCS#11 library**: Ensure that the binary is executed with superuser privilege.
 
+## Change Log (based on tag)
+
+- [`result`](https://github.com/AndreanIvan/pkcs11_solid/releases/tag/result): Project results that are delivered within the deadline.
+- [`result-addition`](https://github.com/AndreanIvan/pkcs11_solid/releases/tag/result-addition): Additional works - Make the input to be more general, add unit tests
+
 ## Improvement
 
 Following things might be improvement for this project:
