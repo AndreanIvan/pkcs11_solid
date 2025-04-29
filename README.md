@@ -84,4 +84,6 @@ sudo apt-get install g++ cmake libsofthsm2-dev
 ## Improvement
 
 Following things might be improvement for this project:
-- Make it more modular
+- Make it more SOLID\
+Class diagram of the plan:
+![Planned Class Diagram](./doc/ClassDiagram.png)
