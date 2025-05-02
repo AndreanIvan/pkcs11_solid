@@ -80,8 +80,8 @@ sudo apt-get install g++ cmake libsofthsm2-dev
 
 - [`result`](https://github.com/AndreanIvan/pkcs11_solid/releases/tag/result): Project results that are delivered within the deadline.
 - [`result-addition`](https://github.com/AndreanIvan/pkcs11_solid/releases/tag/result-addition): Additional works - Make the input to be more general, add unit tests
+- [`result-addition-2`](https://github.com/AndreanIvan/pkcs11_solid/releases/tag/result-addition-2): Additional works 2 - Refactor the project to use more SOLID approach
 
-## Improvement
-
-Following things might be improvement for this project:
-- Make it more modular
+## Class diagram
+Below is the class diagram for this project:
+![Class Diagram](./doc/ClassDiagram.png)

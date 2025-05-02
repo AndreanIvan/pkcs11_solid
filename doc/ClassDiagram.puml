@@ -1,0 +1,54 @@
+@startuml
+
+interface ICryptoAlgorithm {
+    +encrypt(plaintext: vector<uint8_t>) : vector<uint8_t>
+    +decrypt(ciphertext: vector<uint8_t>) : vector<uint8_t>
+}
+
+interface IKeyManager {
+    +generateKey() : void
+    +loadKey() : void
+}
+
+interface IPkcs11SessionManager {
+    +getSession() : CK_SESSION_HANDLE
+}
+
+class EncryptionService {
+    - algorithm_: ICryptoAlgorithm*
+    + encrypt(plaintext: vector<uint8_t>) : vector<uint8_t>
+    + decrypt(ciphertext: vector<uint8_t>) : vector<uint8_t>
+}
+
+class AESCryptoAlgorithm {
+    - keyManager_: IKeyManager*
+    + encrypt(plaintext: vector<uint8_t>) : vector<uint8_t>
+    + decrypt(ciphertext: vector<uint8_t>) : vector<uint8_t>
+}
+
+class Pkcs11KeyManager {
+    - sessionManager_: IPkcs11SessionManager*
+    + generateKey() : void
+    + loadKey() : void
+}
+
+class Pkcs11SessionManager {
+    - moduleHandle_: void*
+    - functions_: CK_FUNCTION_LIST_PTR
+    - session_: CK_SESSION_HANDLE
+    + getSession() : CK_SESSION_HANDLE
+}
+
+class Logger {
+    +info(message: string) : void
+    +error(message: string) : void
+}
+
+EncryptionService --> ICryptoAlgorithm : uses
+AESCryptoAlgorithm ..|> ICryptoAlgorithm
+AESCryptoAlgorithm --> IKeyManager : uses
+Pkcs11KeyManager ..|> IKeyManager
+Pkcs11KeyManager --> IPkcs11SessionManager : uses
+Pkcs11SessionManager ..|> IPkcs11SessionManager
+
+@enduml

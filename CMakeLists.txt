@@ -12,21 +12,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build/bin)
 
 # Set where the header files are located
-include_directories(${PROJECT_SOURCE_DIR}/inc ${PROJECT_SOURCE_DIR}/lib/pkcs11)
+include_directories(
+    /usr/include
+    # /usr/local/include
+    ${PROJECT_SOURCE_DIR}/inc
+    ${PROJECT_SOURCE_DIR}/lib/pkcs11/inc
+    ${PROJECT_SOURCE_DIR}/lib/gtest/inc
+    ${PROJECT_SOURCE_DIR}/lib/gmock/inc
+)
 
 # Add the lib folder
 link_directories(${PROJECT_SOURCE_DIR}/lib/pkcs11)
 
 # Find the required libraries
-find_library(SOFTHSM2_LIBRARY NAMES softhsm2 PATHS ${PROJECT_SOURCE_DIR}/lib/pkcs11 NO_DEFAULT_PATH)
+find_library(SOFTHSM2_LIBRARY NAMES softhsm2 PATHS ${PROJECT_SOURCE_DIR}/lib/softhsm2 NO_DEFAULT_PATH)
 
-# Add the source files as libraries
-add_library(pkcs11_solid_lib STATIC
-    src/Pkcs11Connector.cpp
-    src/Pkcs11Decryptor.cpp
-    src/Pkcs11Encryptor.cpp
-    src/Pkcs11Wrapper.cpp
+# Dynamically find all source files for the library
+file(GLOB_RECURSE PKCS11_SOLID_LIB_SOURCES
+    ${PROJECT_SOURCE_DIR}/src/crypto/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/key/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/service/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/session/*.cpp
 )
+
+# Add the source files as a library
+add_library(pkcs11_solid_lib STATIC ${PKCS11_SOLID_LIB_SOURCES})
 
 # Create the executable
 add_executable(pkcs11_solid main.cpp)

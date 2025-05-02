@@ -1,14 +1,13 @@
 #include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <dlfcn.h>
-#include <gtest/gtest.h>
-
-#include "pkcs11.h"
-#include "Pkcs11Encryptor.hpp"
-#include "Pkcs11Decryptor.hpp"
+#include "service/EncryptionService.hpp"
+#include "crypto/AESCryptoAlgorithm.hpp"
+#include "key/Pkcs11KeyManager.hpp"
+#include "session/Pkcs11SessionManager.hpp"
+#include "utils/Logger.hpp"
+#include "Config.hpp"
 
 #include "gtest/gtest.h"
+#include "service/EncryptionService.hpp"
 
 /* Constants and Variables */
 const char* PKCS11_LIB_PATH = "/usr/lib/softhsm/libsofthsm2.so";
@@ -20,89 +19,81 @@ const std::string defaultPlaintext = "Hello, my name is Andrean Ivan. Nice to me
 
 /* Unit tests declaration */
 TEST(PositiveCase, EncryptDecrypt) {
+    // Initialize PKCS#11 library and session manager
+    Pkcs11SessionManager sessionManager;
+    Pkcs11KeyManager keyManager(&sessionManager);
+    keyManager.generateKey();
+    AESCryptoAlgorithm aes(&keyManager, &sessionManager);
+    EncryptionService service(&aes);
+
     // Test data
     std::string plaintext = defaultPlaintext;
     std::vector<uint8_t> plaintextVec(plaintext.begin(), plaintext.end());
-    std::vector<uint8_t> ciphertextVec(BUFFER_SIZE, 0);
-    std::vector<uint8_t> decryptedVec(BUFFER_SIZE, 0);
 
-    // Encryptor object
-    Pkcs11Encryptor encryptor(PKCS11_LIB_PATH);
+    // Encrypt and decrypt data
+    auto ciphertextVec = service.encrypt(plaintextVec);
+    auto decryptedVec = service.decrypt(ciphertextVec);
 
-    // Encrypt data
-    encryptor.login(USER_PIN);
-    encryptor.generateKey(AES_KEY_SIZE);
-    encryptor.encrypt(plaintextVec, ciphertextVec);
-    encryptor.decrypt(ciphertextVec, decryptedVec);
-
-    // Check if decrypted data matches original plaintext
-    EXPECT_EQ(plaintext, std::string(decryptedVec.begin(), decryptedVec.end()));
+    // Assertions
+    EXPECT_EQ(plaintextVec.size(), decryptedVec.size()); // Check if sizes match
+    EXPECT_EQ(memcmp(plaintextVec.data(), decryptedVec.data(), plaintextVec.size()), 0); // Check if decrypted data matches original plaintext
 }
 
 TEST(NegativeCase, EncryptWithoutKey) {
+    // Initialize PKCS#11 library and session manager
+    Pkcs11SessionManager sessionManager;
+    Pkcs11KeyManager keyManager(&sessionManager);
+    AESCryptoAlgorithm aes(&keyManager, &sessionManager);
+    EncryptionService service(&aes);
+
     // Test data
     std::string plaintext = defaultPlaintext;
     std::vector<uint8_t> plaintextVec(plaintext.begin(), plaintext.end());
-    std::vector<uint8_t> ciphertextVec(BUFFER_SIZE, 0);
-    std::vector<uint8_t> decryptedVec(BUFFER_SIZE, 0);
 
-    // Encryptor object
-    Pkcs11Encryptor encryptor(PKCS11_LIB_PATH);
-
-    // Encrypt data without generating key
-    encryptor.login(USER_PIN);
-    CK_RV rv = encryptor.encrypt(plaintextVec, ciphertextVec);
-    
-    EXPECT_NE(rv, CKR_OK); // Decryption should fail without key
-}
-
-TEST(NegativaCase, LoginWithWrongPin) {
-    // Test data
-    std::string plaintext = defaultPlaintext;
-    std::vector<uint8_t> plaintextVec(plaintext.begin(), plaintext.end());
-    std::vector<uint8_t> ciphertextVec(BUFFER_SIZE, 0);
-    std::vector<uint8_t> decryptedVec(BUFFER_SIZE, 0);
-
-    // Encryptor object
-    Pkcs11Encryptor encryptor(PKCS11_LIB_PATH);
-
-    // Encrypt data with wrong PIN
-    encryptor.login("wrong_pin");
+    // Encrypt and decrypt data
     try {
-        encryptor.generateKey(AES_KEY_SIZE);
+        auto ciphertextVec = service.encrypt(plaintextVec);
         FAIL() << "Expected exception not thrown";
     } catch (const std::exception& e) {
-        EXPECT_STREQ(e.what(), "Failed to generate AES key with PKCS#11 library");
+        EXPECT_STREQ(e.what(), "Failed to initialize encryption.");
     }
 }
 
 TEST(NegativeCase, DecryptWithWrongCiphertext) {
+    // Initialize PKCS#11 library and session manager
+    Pkcs11SessionManager sessionManager;
+    Pkcs11KeyManager keyManager(&sessionManager);
+    keyManager.generateKey();
+    AESCryptoAlgorithm aes(&keyManager, &sessionManager);
+    EncryptionService service(&aes);
+
     // Test data
     std::string plaintext = defaultPlaintext;
     std::vector<uint8_t> plaintextVec(plaintext.begin(), plaintext.end());
-    std::vector<uint8_t> ciphertextVec(BUFFER_SIZE, 0);
-    std::vector<uint8_t> decryptedVec(BUFFER_SIZE, 0);
-
-    // Encryptor object
-    Pkcs11Encryptor encryptor(PKCS11_LIB_PATH);
-
-    // Encrypt data
-    encryptor.login(USER_PIN);
-    encryptor.generateKey(AES_KEY_SIZE);
-    encryptor.encrypt(plaintextVec, ciphertextVec);
+    auto ciphertextVec = service.encrypt(plaintextVec);
 
     // Decrypt with wrong ciphertext
     std::vector<uint8_t> wrongCiphertext = {0x00, 0x01, 0x02};
-    CK_RV rv = encryptor.decrypt(wrongCiphertext, decryptedVec);
-
-    EXPECT_NE(rv, CKR_OK); // Decryption should fail with wrong ciphertext
+    try {
+        auto decryptedVec = service.decrypt(wrongCiphertext);
+        FAIL() << "Expected exception not thrown";
+    } catch (const std::exception& e) {
+        EXPECT_STREQ(e.what(), "Failed to decrypt data.");
+    }
 }
 
-
-bool test_encrypt_decrypt_successful(void);
-bool test_encrypt_without_key(void);
-bool test_login_with_wrong_pin(void);
-bool test_decrypt_with_wrong_ciphertext(void);
+TEST(NegativeCase, LoginWithWrongPin) {
+    // Initialize PKCS#11 library and session manager
+    // Use a wrong PIN to test the login failure
+    try {
+        Pkcs11SessionManager sessionManager(Config::PKCS11_LIB_PATH, "wrong_pin");
+        Pkcs11KeyManager keyManager(&sessionManager);
+        keyManager.generateKey(); // This should fail
+        FAIL() << "Expected exception not thrown";
+    } catch (const std::exception& e) {
+        EXPECT_STREQ(e.what(), "Failed to login to PKCS#11 token");
+    }
+}
 
 int main() {
     // Initialize Google Test framework
